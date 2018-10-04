@@ -63,7 +63,7 @@
 #include "httpd_jsonapi.h"
 #include "httpd_streaming.h"
 #include "httpd_oauth.h"
-#include "httpd_artwork.h"
+#include "httpd_artworkapi.h"
 #include "transcode.h"
 #ifdef LASTFM
 # include "lastfm.h"
@@ -1688,7 +1688,8 @@ httpd_init(const char *webroot)
   ret = artworkapi_init();
   if (ret < 0)
     {
-      DPRINTF(E_FATAL, L_HTTPD, "artwork init failed\n");
+      DPRINTF(E_FATAL, L_HTTPD, "Artwork init failed\n");
+
       goto artworkapi_fail;
     }
 
