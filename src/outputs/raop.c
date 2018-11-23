@@ -4811,13 +4811,17 @@ raop_device_airplay_cb(const char *name, const char *type, const char *domain, c
   struct raop_airplay_announcement *prev;
   const char *p;
   char deviceid[13];
-  uint64_t id;
+  char raopname[128];
   int i;
+  uint64_t id;
   int ret;
 
   p = keyval_get(txt, "deviceid");
   if (!p)
-    return;
+    {
+      DPRINTF(E_WARN, L_RAOP, "_airplay._tcp event from '%s' without deviceid in txt field\n", name);
+      return;
+    }
 
   // Converts p="AB:CD:EF:01:02:03" -> deviceid="ABCDEF0123456"
   for (i = 0; (*p != '\0') && (i < sizeof(deviceid)); p++)
@@ -4833,11 +4837,11 @@ raop_device_airplay_cb(const char *name, const char *type, const char *domain, c
   ret = safe_hextou64(deviceid, &id);
   if (ret < 0)
     {
-      DPRINTF(E_LOG, L_RAOP, "Could not extract AirPlay device ID ('%s')\n", deviceid);
+      DPRINTF(E_LOG, L_RAOP, "Could not read AirPlay device ID ('%s') from '%s'\n", deviceid, name);
       return;
     }
 
-  DPRINTF(E_DBG, L_RAOP, "_airplay._tcp event for %" PRIu64 " (family %d)\n", id, family);
+  DPRINTF(E_DBG, L_RAOP, "_airplay._tcp event from '%s' (ID %" PRIu64 ", family %d)\n", name, id, family);
 
   // Device is gone (note, depending on order it might already have been removed)
   if (port < 0)
@@ -4857,7 +4861,8 @@ raop_device_airplay_cb(const char *name, const char *type, const char *domain, c
 	  break;
 	}
 
-      raop_device_cb(name, type, domain, hostname, family, address, port, txt);
+      snprintf(raopname, sizeof(raopname), "%s@%s", deviceid, name);
+      raop_device_cb(raopname, type, domain, hostname, family, address, port, txt);
       return;
     }
 
