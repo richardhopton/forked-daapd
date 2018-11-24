@@ -486,7 +486,6 @@ main(int argc, char **argv)
   bool background;
   bool mdns_no_rsp;
   bool mdns_no_daap;
-  bool mdns_no_cname;
   bool mdns_no_web;
   bool mdns_no_mpd;
   int loglevel;
@@ -519,7 +518,6 @@ main(int argc, char **argv)
 
       { "mdns-no-rsp",  0, NULL, 512 },
       { "mdns-no-daap", 0, NULL, 513 },
-      { "mdns-no-cname",0, NULL, 514 },
       { "mdns-no-web",  0, NULL, 515 },
 
       { NULL,           0, NULL, 0 }
@@ -535,7 +533,6 @@ main(int argc, char **argv)
   ffid = NULL;
   mdns_no_rsp = false;
   mdns_no_daap = false;
-  mdns_no_cname = false;
   mdns_no_web = false;
 
   while ((option = getopt_long(argc, argv, "D:d:c:P:fb:vw:", option_map, NULL)) != -1)
@@ -548,10 +545,6 @@ main(int argc, char **argv)
 
 	  case 513:
 	    mdns_no_daap = true;
-	    break;
-
-	  case 514:
-	    mdns_no_cname = true;
 	    break;
 
 	  case 515:
@@ -852,11 +845,6 @@ main(int argc, char **argv)
       ret = EXIT_FAILURE;
       goto mdns_reg_fail;
     }
-
-  /* Register this CNAME with mDNS for OAuth */
-  if (!mdns_no_cname)
-    mdns_cname("forked-daapd.local");
-
 #ifdef HAVE_SIGNALFD
   /* Set up signal fd */
   sigfd = signalfd(-1, &sigs, SFD_NONBLOCK | SFD_CLOEXEC);
